@@ -1,0 +1,168 @@
+{
+"metadata": {
+"appName": "AeroMeteo",
+"version": "2.4.0",
+"apiProvider": "Open-Meteo",
+"cacheTtlMs": 1800000
+},
+"locations": {
+"kochi": { "name": "Kochi", "lat": 9.9312, "lon": 76.2673, "isCoastal": true, "lsProne": true, "region": "India" },
+"bangalore": { "name": "Bangalore", "lat": 12.9716, "lon": 77.5946, "isCoastal": false, "lsProne": false, "region": "India" },
+"thiruvananthapuram": { "name": "Thiruvananthapuram", "lat": 8.5241, "lon": 76.9366, "isCoastal": true, "lsProne": true, "region": "India" },
+"mumbai": { "name": "Mumbai", "lat": 19.0760, "lon": 72.8777, "isCoastal": true, "lsProne": false, "region": "India" },
+"goa": { "name": "Goa", "lat": 15.2993, "lon": 73.9799, "isCoastal": true, "lsProne": true, "region": "India" },
+"new_delhi": { "name": "New Delhi", "lat": 28.6139, "lon": 77.2090, "isCoastal": false, "lsProne": false, "region": "India" },
+"shimla": { "name": "Shimla", "lat": 31.1048, "lon": 77.1734, "isCoastal": false, "lsProne": true, "region": "India" },
+"chennai": { "name": "Chennai", "lat": 13.0827, "lon": 80.2707, "isCoastal": true, "lsProne": false, "region": "India" },
+"new_york": { "name": "New York", "lat": 40.7128, "lon": -74.0060, "isCoastal": true, "lsProne": false, "region": "USA" },
+"miami": { "name": "Miami", "lat": 25.7617, "lon": -80.1918, "isCoastal": true, "lsProne": false, "region": "USA" },
+"los_angeles": { "name": "Los Angeles", "lat": 34.0522, "lon": -118.2437, "isCoastal": true, "lsProne": true, "region": "USA" },
+"houston": { "name": "Houston", "lat": 29.7604, "lon": -95.3698, "isCoastal": true, "lsProne": true, "region": "USA" },
+"denver": { "name": "Denver", "lat": 39.7392, "lon": -104.9903, "isCoastal": false, "lsProne": true, "region": "USA" }
+},
+"dictionaries": {
+"enso": {
+"temps": {
+"title": "Air & Sea Temp (ONI)",
+"plain": "The ocean surface in the Pacific is significantly warmer than average. This massive pool of heat warms the air above it, changing global weather patterns.",
+"tech": "The Oceanic Niño Index (ONI) measures 3-month rolling average SST anomalies in the Niño 3.4 region (5°N-5°S, 120°-170°W). Current anomaly is +2.1°C, indicating a strong El Niño episode driving enhanced equatorial convection."
+},
+"pressure": {
+"title": "Atmospheric Pressure (SOI)",
+"plain": "The normal pressure system over the Pacific is reversed. High pressure over Australia causes droughts, while low pressure over Tahiti brings rain.",
+"tech": "The Southern Oscillation Index (SOI) is -1.8, tracking the standardized sea level pressure difference between Tahiti and Darwin. Negative values signify anomalously weak trade winds and El Niño conditions."
+},
+"thermocline": {
+"title": "Thermocline Depth",
+"plain": "The boundary between warm surface water and cold deep water has flattened out, trapping heat at the surface.",
+"tech": "The equatorial Pacific thermocline (measured at the 20°C isotherm) slope has flattened. Downwelling in the East Pacific suppresses nutrient-rich cold upwelling, deepening the mixed layer."
+},
+"kelvin": {
+"title": "Kelvin Waves",
+"plain": "Massive underwater waves of warm water are traveling from Indonesia towards South America, fueling the El Niño event.",
+"tech": "Downwelling equatorial Kelvin waves, triggered by westerly wind bursts, are propagating eastward across the Pacific basin, transporting immense anomalous oceanic heat content to the eastern boundary."
+},
+"winds": {
+"title": "Trade Winds",
+"plain": "The winds that normally blow west across the Pacific have weakened or even reversed, allowing warm water to slosh back east.",
+"tech": "Low-level equatorial easterlies have anomalously weakened or reversed into Westerly Wind Bursts (WWBs). This reduces Ekman transport and equatorial upwelling."
+},
+"walker": {
+"title": "Walker Circulation",
+"plain": "The massive air loop over the Pacific has shifted. Storms and rising air have moved from Indonesia out to the middle of the ocean.",
+"tech": "The Walker Circulation has shifted eastward. Anomalous ascending motion (convection) is centered over the central/eastern Pacific, with anomalous descending motion (subsidence) over the Maritime Continent."
+}
+},
+"amoc": {
+"transport": {
+"title": "Overturning Transport",
+"plain": "The massive ocean current that brings warm water north is slowing down significantly.",
+"tech": "Meridional volume transport is measured at 12.4 Sverdrups (1 Sv = 10^6 m^3/s), representing a statistically significant weakening trend in the Atlantic overturning circulation."
+},
+"blob": {
+"title": "Subpolar Gyre SST",
+"plain": "A mysterious cold patch in the North Atlantic indicates that warm water is not reaching as far north as it used to.",
+"tech": "The North Atlantic Warming Hole (Cold Blob) exhibits an anomaly of -2.1°C, a classic fingerprint of AMOC slowdown due to reduced northward oceanic heat advection."
+},
+"salinity": {
+"title": "Surface Salinity",
+"plain": "Melting ice is making the ocean surface fresher. Fresh water is lighter than salty water, so it does not sink easily, jamming up the ocean currents.",
+"tech": "Surface salinity anomalies in the Labrador and Irminger Seas (34.2 PSU) show enhanced freshening due to Greenland ice sheet meltwater fluxes, increasing stratification and suppressing deep water formation."
+},
+"gulfstream": {
+"title": "Gulf Stream Velocity",
+"plain": "The famous Gulf Stream current is moving slower than normal.",
+"tech": "Geostrophic velocities derived from satellite altimetry show a reduction in Gulf Stream core speed (0.9 m/s), consistent with weakened western boundary current dynamics."
+},
+"convection": {
+"title": "Convection Depth",
+"plain": "Water is not sinking as deep as it should in the North Atlantic, slowing the entire global conveyor belt.",
+"tech": "Wintertime deep convection depth in the subpolar North Atlantic is anomalously shallow (850 m), indicating reduced North Atlantic Deep Water (NADW) formation."
+},
+"heat": {
+"title": "Heat Transport",
+"plain": "The ocean is carrying less heat from the equator to the poles, which could drastically cool Europe.",
+"tech": "Meridional Oceanic Heat Transport (MHT) across 26.5°N is estimated at 1.10 Petawatts (PW), showing a negative anomaly linked to the weakened overturning volume."
+}
+},
+"polar": {
+"winds": {
+"title": "10 hPa Winds",
+"plain": "The high-altitude winds spinning around the North Pole have actually reversed direction from west-to-east, to east-to-west.",
+"tech": "Zonal-mean zonal winds at 60°N and 10 hPa have reversed to -2.0 m/s, strictly defining a Sudden Stratospheric Warming (SSW) event."
+},
+"ao": {
+"title": "Arctic Oscillation",
+"plain": "The boundary keeping cold Arctic air trapped up north has weakened, allowing freezing air to spill south.",
+"tech": "The Arctic Oscillation (AO) index is strongly negative (-1.48), indicating high geopotential heights in the Arctic and a weakened, meandering tropospheric jet stream."
+},
+"structure": {
+"title": "Vortex Structure",
+"plain": "The main spinning pool of cold air has split into two separate, smaller spinning pools.",
+"tech": "Geopotential height fields indicate a Wave-2 perturbation, resulting in a complete barotropic splitting of the stratospheric polar vortex into sister vortices over Canada and Eurasia."
+},
+"temp": {
+"title": "Stratospheric Temp",
+"plain": "The air way up high over the Arctic has suddenly become much hotter than normal.",
+"tech": "A rapid adiabatic heating event (+10°C anomaly) has occurred in the polar stratosphere over a few days, driven by planetary wave breaking and anomalous downwelling."
+},
+"nao": {
+"title": "North Atlantic Oscillation",
+"plain": "Pressure patterns over the Atlantic are pushing Arctic storms directly into Europe and the US East Coast.",
+"tech": "A negative NAO index (-2.10) indicates a weakened Icelandic Low and Azores High, driving anomalous easterly flow and severe winter conditions into mid-latitudes."
+},
+"ozone": {
+"title": "Stratospheric Ozone",
+"plain": "Ozone levels have changed because the cold air that normally destroys ozone has moved away.",
+"tech": "Anomalous transport dynamics associated with the SSW have led to localized surges in column ozone, as the lack of Polar Stratospheric Clouds (PSCs) halts ozone depletion mechanisms."
+}
+},
+"hurricanes": {
+"atl": {
+"title": "Atlantic Basin Outlook & ACE",
+"plain": "The Atlantic basin has experienced an unusually quiet season due to strong vertical wind shear and dry air suppression driven by El Niño.",
+"tech": "Active shear anomalies (>25 kts) across the Main Development Region (MDR) have significantly disrupted tropical cyclogenesis throughout the late season."
+},
+"pac": {
+"title": "Eastern Pacific Basin & Pressure",
+"plain": "The Eastern Pacific has sustained localized activity, supported by anomalously high sea surface temperatures exceeding 28.5°C.",
+"tech": "Minimum central pressure gradient drives the cyclostrophic wind balance. Rapid deepening is defined as a pressure drop of >= 24 hPa in 24 hours."
+},
+"gulf": {
+"title": "Gulf of Mexico Loop Current & Surge",
+"plain": "Shallow bathymetry and high water temperatures in the Gulf amplify storm surge heights dramatically during landfall.",
+"tech": "Upper Ocean Heat Content (UOHC) in the Gulf remains above 60 kJ/cm², maintaining high potential intensity parameters for incoming disturbances."
+},
+"shear": {
+"title": "Vertical Wind Shear & ACE",
+"plain": "Strong winds high up in the atmosphere are shearing the tops off developing storms, preventing them from organizing.",
+"tech": "Tropospheric vertical wind shear vector magnitude between 200hPa and 850hPa exceeds 30 knots across key subtropical development corridors."
+}
+},
+"volcanoes": {
+"popocatepetl": {
+"title": "Popocatépetl (Mexico)",
+"plain": "Continuous degassing with frequent ash plumes reaching 22,000 feet and incandescent ballistic ejecta near the crater rim.",
+"tech": "SO2 flux exceeds 3,200 t/day paired with sustained harmonic tremor bursts (2-4 Hz) indicating magma ascent in the upper conduit."
+},
+"etna": {
+"title": "Mount Etna (Italy)",
+"plain": "Strombolian explosions and episodic lava fountaining from the Southeast Crater.",
+"tech": "Infrasound acoustic pressure spikes and elevated volcanic tremor amplitude linked to volatile-rich basaltic magma recharge."
+}
+}
+},
+"hazards": {
+"cyclones": [
+{ "id": "akvan", "name": "SCS AKVAN (Simulated)", "basin": "ind", "lat": 14.5, "lon": 86.2, "windMph": 195, "pressureHpa": 912, "ace": 42.5, "surgeM": 5.8, "sstC": 30.5 }
+],
+"hurricanes": [
+{ "id": "zelda", "name": "EPAC: Hurricane ZELDA", "basin": "atl", "lat": 16.8, "lon": -104.5, "windMph": 205, "pressureHpa": 895, "ace": 68.2, "surgeM": 7.2, "motion": "WNW at 15 km/h" }
+],
+"volcanoes": [
+{ "id": "popocatepetl", "name": "Popocatépetl", "country": "MEX", "lat": 19.0225, "lon": -98.6278, "status": "Erupting", "ashFlightLevel": "FL 220 (22k ft)", "so2Flux": "3,450 t/day", "seismic": "Harmonic Tremor" },
+{ "id": "etna", "name": "Mt. Etna", "country": "ITA", "lat": 37.7510, "lon": 14.9934, "status": "Strombolian", "ashFlightLevel": "FL 160 (16k ft)", "so2Flux": "2,100 t/day", "seismic": "Elevated Tremor" },
+{ "id": "merapi", "name": "Mt. Merapi", "country": "IDN", "lat": -7.5407, "lon": 110.4457, "status": "Lava Dome", "ashFlightLevel": "FL 140 (14k ft)", "so2Flux": "1,150 t/day", "seismic": "Hybrid Quakes" }
+]
+}
+}
