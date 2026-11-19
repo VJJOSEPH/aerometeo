@@ -1,0 +1,64 @@
+# AeroMeteo | Sci-Ops Weather Intelligence Dashboard
+
+**AeroMeteo** is a single-file, high-performance scientific weather, oceanography, and global climate intelligence web application. Built with a dark glassmorphism interface, native D3.js vector maps, real-time HTML5 Canvas fluid/climate simulations, and Chart.js forecasting, it is engineered for rapid responsiveness on both desktop and Android mobile devices.
+
+---
+
+## Core Modules & Tabs
+
+1. **Overview & 7-Day Meteogram (`Overview`)**
+   * Live localized meteorological telemetry (temperature, apparent temperature, humidity, wind speed, surface pressure, AQI, snow depth, and 24-hour precipitation) powered by Open-Meteo.
+   * Interactive 7-day forecast chart (`Chart.js`) with explicit calendar dates and `°C` units.
+2. **Marine & Oceanographic Telemetry (`Marine`)**
+   * Tracks sea surface temperature (SST), significant wind waves, ocean swell height, and sea-level atmospheric pressure for coastal and marine hubs.
+3. **Critical Threat Alerts (`Alerts`)**
+   * Real-time risk evaluation for Cyclones, Landslides, Avalanches, and Drought conditions based on live pressure, wind gusts, precipitation totals, and elevation.
+4. **Tropical Cyclone Radar (`Cyclone`)**
+   * Interactive D3.js vector ocean radar with grid-scan telemetry, storm classification (IMD & Saffir-Simpson scales, including Category 6 extreme storm thresholds), central pressure, ACE index, and storm surge estimates.
+5. **US Hurricanes / NHC Tracker (`US Hurricanes`)**
+   * Dedicated Atlantic, Eastern Pacific, and Gulf of Mexico monitoring with interactive D3 basin mapping, NHC grid scan, and detailed plain-language + technical modal breakdowns.
+6. **Global Volcano Telemetry (`Volcanoes`)**
+   * Interactive global D3 Ring-of-Fire map with sensor sync for active volcanoes (e.g., Popocatépetl, Mt. Etna, Mt. Merapi, Volcán de Fuego), tracking ash plume flight levels, $\text{SO}_2$ flux, and harmonic seismic tremor.
+7. **ENSO / El Niño Monitor (`El Niño`)**
+   * Live **Equatorial Pacific Ocean-Atmosphere & Walker Circulation** canvas simulation depicting the $20^\circ\text{C}$ thermocline tilt, eastward-propagating Kelvin waves, Westerly Wind Bursts, and an interactive **El Niño ($+2.1^\circ\text{C}$) / La Niña ($-1.6^\circ\text{C}$)** phase toggle.
+   * Interactive metric cards for ONI, SOI, Thermocline Depth, Kelvin Waves, Trade Winds, and Walker Circulation.
+8. **AMOC Thermohaline Conveyor (`AMOC`)**
+   * Live **3-Stage Meridional Cross-Section** canvas animation illustrating:
+     1. *Northward Surface Flow:* Warm, salty Gulf Stream / North Atlantic Drift waters releasing heat plumes to the atmosphere.
+     2. *Subpolar Cooling & Sinking:* Arctic cooling and sea-ice brine rejection driving dense water convection in the Nordic and Labrador Seas.
+     3. *Southward Deep Flow & Upwelling:* Cold, dense North Atlantic Deep Water (NADW) flowing southward along the ocean floor before upwelling in the Southern Ocean.
+   * Interactive **Weakened ($12.4\text{ Sv}$) / Baseline ($18.5\text{ Sv}$)** flow toggle plus deep-dive scientific modals.
+9. **Polar Vortex & SSW Monitor (`Polar Vortex`)**
+   * Real-time stratospheric telemetry ($10\text{ hPa}$ zonal winds, Arctic Oscillation, North Atlantic Oscillation, stratospheric temperature spikes, and ozone dynamics) with educational plain-language and technical deep dives.
+10. **Global Glacier Mass Balance (`Glaciers`)**
+    * Concise, high-density mass balance and retreat metrics for key mountain glaciers (Mt. Rainier, Mt. Baker, Glacier Peak, Matterhorn, Nepal Himalayas, and more).
+11. **HD Vector Maps (`HD Maps`)**
+    * D3.js vector map anchored to the Indian Subcontinent with manual zoom controls, hardware volume-button zoom support on mobile devices, and switchable data overlays (Temperature Gradient, Rain Details, Wind Speeds, Base Map).
+
+---
+
+## Architecture & Performance Engineering
+
+* **Zero-Build Single-File Architecture:** All HTML, Tailwind CSS, custom thematic backgrounds, D3.js vector rendering, Chart.js graphs, and HTML5 Canvas physics simulations reside inside a single `index.html` file.
+* **In-Memory Caching:** Stores fetched meteorological payloads in memory for rapid location switching and resilient offline tab viewing without `localStorage` sandbox errors.
+* **Mobile & Android Optimizations:**
+  * Responsive split-view layouts with dedicated mobile map viewports (`50vh` / `350px` minimum height).
+  * Hardware-accelerated glass panels and high-DPI (`devicePixelRatio`) responsive canvas scaling.
+  * Support for touch pan/zoom gestures as well as mobile volume-key incremental zooming.
+
+---
+
+## Quick Start
+
+1. Download or clone `index.html`.
+2. Open `index.html` directly in any modern web browser (Chrome, Edge, Safari, Firefox, or Android WebView/Chrome)—no build step, bundler, or backend server is required.
+3. Select a city from the top location selector or switch across any of the scientific monitoring tabs in the navigation bar.
+
+---
+
+## Data Sources & Libraries
+
+* **Weather & Marine APIs:** [Open-Meteo](https://open-meteo.com/) (Forecast, Air Quality, and Marine endpoints)
+* **Vector Mapping:** [D3.js v7](https://d3js.org/) & World GeoJSON
+* **Data Visualization:** [Chart.js](https://www.chartjs.org/) & HTML5 2D Canvas API
+* **Styling & Icons:** [Tailwind CSS](https://tailwindcss.com/) & [Font Awesome 6](https://fontawesome.com/)
