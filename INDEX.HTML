@@ -1,0 +1,789 @@
+<!-- AMOC TAB -->
+    <div id="tab-amoc" class="tab-content space-y-4">
+        <div class="glass-panel rounded-2xl p-6 relative overflow-hidden">
+            <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white"><i class="fa-solid fa-water-arrow-up text-emerald-400 mr-3"></i>AMOC Thermohaline Conveyor Monitor</h2>
+                    <p class="text-xs text-emerald-200 font-mono mt-1">Atlantic Meridional Overturning Circulation — 3-Stage Meridional Cross-Section</p>
+                </div>
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <button id="amoc-mode-btn" onclick="toggleAmocSimMode()" class="px-3.5 py-2 bg-teal-600/30 hover:bg-teal-600/50 border border-teal-400/40 rounded-xl text-xs font-mono text-teal-200 transition cursor-pointer">
+                        <i class="fa-solid fa-sliders mr-1.5"></i>Flow: Weakened (12.4 Sv)
+                    </button>
+                    <div class="px-4 py-2 bg-teal-500/20 border border-teal-500/50 rounded-xl text-center">
+                        <p id="amoc-status" class="text-lg font-bold text-white">Critical Weakening</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live 3-Stage AMOC Thermohaline Conveyor Simulation -->
+            <div class="relative z-10 mb-6 bg-[#030b14]/95 rounded-2xl border border-emerald-500/25 overflow-hidden shadow-inner">
+                <div class="flex flex-wrap justify-between items-center px-4 py-2.5 bg-black/40 border-b border-white/5 gap-2">
+                    <span class="text-xs font-mono uppercase tracking-wider text-emerald-300 font-bold"><i class="fa-solid fa-arrows-spin mr-2"></i>1. Northward Warm Flow → 2. Subpolar Cooling &amp; Sinking → 3. Deep NADW Return &amp; Upwelling</span>
+                    <div class="flex flex-wrap items-center gap-3 text-[10px] font-mono">
+                        <span class="flex items-center gap-1.5 text-orange-300"><span class="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-red-500 to-amber-400 inline-block"></span>Warm Salty Surface + Heat Flux</span>
+                        <span class="flex items-center gap-1.5 text-cyan-300"><span class="w-2.5 h-2.5 rounded-full bg-cyan-400 inline-block"></span>Brine Rejection &amp; Sinking</span>
+                        <span class="flex items-center gap-1.5 text-blue-300"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>Cold Dense NADW &amp; Upwelling</span>
+                    </div>
+                </div>
+                <div class="relative h-[340px] sm:h-[400px] w-full">
+                    <canvas id="amoc-canvas" class="sim-canvas w-full h-full block"></canvas>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
+                <div onclick="showAmocDetails('transport')" class="bg-black/50 p-5 rounded-xl border-t-4 border-t-emerald-500/80 cursor-pointer shadow-lg"><h3 class="text-sm font-bold text-slate-200 uppercase">Overturning (Sv)</h3><p id="amoc-transport" class="text-2xl font-mono font-bold text-emerald-300 mb-2">12.4 Sv</p></div>
+                <div onclick="showAmocDetails('blob')" class="bg-black/50 p-5 rounded-xl border-t-4 border-t-blue-500/80 cursor-pointer shadow-lg"><h3 class="text-sm font-bold text-slate-200 uppercase">Subpolar Gyre SST</h3><p id="amoc-blob" class="text-2xl font-mono font-bold text-blue-300 mb-2">-2.1°C</p></div>
+                <div onclick="showAmocDetails('salinity')" class="bg-black/50 p-5 rounded-xl border-t-4 border-t-cyan-500/80 cursor-pointer shadow-lg"><h3 class="text-sm font-bold text-slate-200 uppercase">Surface Salinity</h3><p id="amoc-salinity" class="text-2xl font-mono font-bold text-cyan-300 mb-2">34.2 PSU</p></div>
+                <div onclick="showAmocDetails('gulfstream')" class="bg-black/50 p-5 rounded-xl border-t-4 border-t-orange-500/80 cursor-pointer shadow-lg"><h3 class="text-sm font-bold text-slate-200 uppercase">Gulf Stream Vel</h3><p id="amoc-gulfstream" class="text-2xl font-mono font-bold text-orange-300 mb-2">0.9 m/s</p></div>
+                <div onclick="showAmocDetails('convection')" class="bg-black/50 p-5 rounded-xl border-t-4 border-t-purple-500/80 cursor-pointer shadow-lg"><h3 class="text-sm font-bold text-slate-200 uppercase">Convection Depth</h3><p id="amoc-convection" class="text-2xl font-mono font-bold text-purple-300 mb-2">850 m</p></div>
+                <div onclick="showAmocDetails('heat')" class="bg-black/50 p-5 rounded-xl border-t-4 border-t-rose-500/80 cursor-pointer shadow-lg"><h3 class="text-sm font-bold text-slate-200 uppercase">Heat Transport</h3><p id="amoc-heat" class="text-2xl font-mono font-bold text-rose-300 mb-2">1.10 PW</p></div>
+            </div>
+        </div>
+    </div>
+        function toggleAmocSimMode() {
+            amocWeakened = !amocWeakened;
+            const btn = document.getElementById('amoc-mode-btn');
+            const status = document.getElementById('amoc-status');
+            if (amocWeakened) {
+                btn.innerHTML = '<i class="fa-solid fa-sliders mr-1.5"></i>Flow: Weakened (12.4 Sv)';
+                status.textContent = 'Critical Weakening';
+                showToast('AMOC Simulation: Weakened 12.4 Sv + meltwater freshening');
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-sliders mr-1.5"></i>Flow: Baseline (18.5 Sv)';
+                status.textContent = 'Strong Overturning';
+                showToast('AMOC Simulation: Historical 18.5 Sv strong conveyor');
+            }
+        }
+
+        function resizeSimCanvas(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            const rect = canvas.parentElement.getBoundingClientRect();
+            const dpr = Math.min(window.devicePixelRatio || 1, 2);
+            const w = Math.max(300, Math.floor(rect.width));
+            const h = Math.max(240, Math.floor(rect.height));
+            if (canvas.width !== w * dpr || canvas.height !== h * dpr) {
+                canvas.width = w * dpr;
+                canvas.height = h * dpr;
+            }
+            const ctx = canvas.getContext('2d');
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            return { ctx, w, h };
+        }
+
+        function cubicBezierPoint(p0, p1, p2, p3, t) {
+            const u = 1 - t;
+            const tt = t * t;
+            const uu = u * u;
+            const uuu = uu * u;
+            const ttt = tt * t;
+            return {
+                x: uuu * p0.x + 3 * uu * t * p1.x + 3 * u * tt * p2.x + ttt * p3.x,
+                y: uuu * p0.y + 3 * uu * t * p1.y + 3 * u * tt * p2.y + ttt * p3.y
+            };
+        }
+
+        function startAmocAnimation() {
+            const sized = resizeSimCanvas('amoc-canvas');
+            if (!sized) return;
+
+            if (amocParticles.length === 0) {
+                // Continuous conveyor loop parcels (0.0 -> 1.0 around the 4-leg thermohaline circuit)
+                for (let i = 0; i < 150; i++) {
+                    amocParticles.push({
+                        t: Math.random(),
+                        lane: ((i % 5) - 2) * 5.2,
+                        speed: 0.045 + (i % 7) * 0.0045,
+                        size: 2.0 + (i % 3) * 0.65,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+            }
+
+            if (!window.amocHeatPlumes) {
+                window.amocHeatPlumes = Array.from({ length: 22 }, (_, i) => ({
+                    normX: 0.14 + (i / 22) * 0.62,
+                    phase: Math.random() * Math.PI * 2,
+                    speed: 0.55 + Math.random() * 0.45
+                }));
+            }
+
+            if (!window.amocSaltCrystals) {
+                window.amocSaltCrystals = Array.from({ length: 26 }, () => ({
+                    offsetX: (Math.random() - 0.5) * 90,
+                    t: Math.random(),
+                    speed: 0.25 + Math.random() * 0.25
+                }));
+            }
+
+            if (amocAnimId) cancelAnimationFrame(amocAnimId);
+
+            // 1.0 = Strong Baseline (18.5 Sv), 0.0 = Weakened (12.4 Sv)
+            let simStrength = amocWeakened ? 0.0 : 1.0;
+            let lastTime = performance.now();
+
+            function renderAmoc(now) {
+                const tab = document.getElementById('tab-amoc');
+                if (!tab || !tab.classList.contains('active')) {
+                    amocAnimId = null;
+                    return;
+                }
+
+                const dt = Math.min((now - lastTime) / 1000, 0.05);
+                lastTime = now;
+
+                const targetStrength = amocWeakened ? 0.0 : 1.0;
+                simStrength += (targetStrength - simStrength) * Math.min(1, dt * 2.4);
+
+                const info = resizeSimCanvas('amoc-canvas');
+                if (!info) { amocAnimId = requestAnimationFrame(renderAmoc); return; }
+                const { ctx, w, h } = info;
+                const timeSec = now * 0.001;
+
+                // Layout coordinates: Left = Southern Ocean / Tropics, Right = Subpolar North Atlantic (Nordic & Labrador Seas)
+                const airFloorY = h * 0.21;          // Sea surface line (top 21% is atmosphere & sea ice)
+                const abyssFloorY = h * 0.90;        // Ocean floor / Bathymetry
+                const southUpwellX = w * 0.11;       // Southern Ocean upwelling zone
+                const tropicsX = w * 0.34;           // Equatorial / Gulf Stream origin
+                const subpolarSinkX = w * 0.85;      // Nordic & Labrador Seas deep convection zone
+                const sinkBottomY = airFloorY + (abyssFloorY - airFloorY) * (0.66 + simStrength * 0.28);
+
+                // 1. ATMOSPHERE SKY & HEAT RELEASE ZONE
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, airFloorY);
+                skyGrad.addColorStop(0, '#020611');
+                skyGrad.addColorStop(1, '#0a192f');
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, w, airFloorY);
+
+                // 2. OCEAN WATER COLUMN STRATIFICATION (Surface Mixed Layer -> Thermocline -> NADW -> AABW)
+                const oceanGrad = ctx.createLinearGradient(0, airFloorY, 0, abyssFloorY);
+                oceanGrad.addColorStop(0, '#082544');
+                oceanGrad.addColorStop(0.28, '#051830');
+                oceanGrad.addColorStop(0.75, '#030e20');
+                oceanGrad.addColorStop(1, '#01060f');
+                ctx.fillStyle = oceanGrad;
+                ctx.fillRect(0, airFloorY, w, abyssFloorY - airFloorY);
+
+                // Dynamic Thermal Boundary Layer (Pycnocline / Thermocline)
+                function getPycnoclineY(x) {
+                    const u = Math.max(0, Math.min(1, (x - southUpwellX) / (subpolarSinkX - southUpwellX)));
+                    const baseDepth = airFloorY + (abyssFloorY - airFloorY) * (0.24 + simStrength * 0.06);
+                    // Shoals upward near Southern Ocean upwelling & dips into subpolar sinking dome
+                    const tilt = -Math.exp(-u * 5.0) * 18 + Math.pow(u, 3.2) * (24 + simStrength * 20);
+                    const kelvinWave = Math.sin(u * 14.0 - timeSec * (1.8 + simStrength * 1.4)) * (3.5 + simStrength * 2.5);
+                    return baseDepth + tilt + kelvinWave;
+                }
+
+                // Warm Salty Upper Layer Fill (Stage 1)
+                ctx.beginPath();
+                ctx.moveTo(southUpwellX, airFloorY);
+                ctx.lineTo(subpolarSinkX + 25, airFloorY);
+                for (let x = subpolarSinkX + 25; x >= southUpwellX; x -= 8) {
+                    ctx.lineTo(x, getPycnoclineY(x));
+                }
+                ctx.closePath();
+                const upperWarmGrad = ctx.createLinearGradient(southUpwellX, 0, subpolarSinkX, 0);
+                upperWarmGrad.addColorStop(0, 'rgba(245, 158, 11, 0.22)');
+                upperWarmGrad.addColorStop(0.45, 'rgba(239, 68, 68, 0.34)');
+                upperWarmGrad.addColorStop(0.82, 'rgba(249, 115, 22, 0.24)');
+                upperWarmGrad.addColorStop(1, 'rgba(56, 189, 248, 0.16)');
+                ctx.fillStyle = upperWarmGrad;
+                ctx.fill();
+
+                // Pycnocline Thermal Boundary Dashed Curve
+                ctx.save();
+                ctx.setLineDash([5, 5]);
+                ctx.strokeStyle = 'rgba(251, 191, 36, 0.35)';
+                ctx.lineWidth = 1.4;
+                ctx.beginPath();
+                for (let x = southUpwellX; x <= subpolarSinkX + 20; x += 8) {
+                    const py = getPycnoclineY(x);
+                    if (x === southUpwellX) ctx.moveTo(x, py);
+                    else ctx.lineTo(x, py);
+                }
+                ctx.stroke();
+                ctx.restore();
+
+                // 3. STAGE 1 ATMOSPHERIC HEAT RELEASE PLUMES & EVAPORATION (Tropics -> Subpolar)
+                window.amocHeatPlumes.forEach(hp => {
+                    const hx = w * hp.normX;
+                    const cycle = (timeSec * hp.speed + hp.phase) % 1;
+                    const hy = airFloorY - 4 - cycle * (airFloorY - 12);
+                    const alpha = Math.sin(cycle * Math.PI) * (0.45 + simStrength * 0.35);
+
+                    ctx.strokeStyle = `rgba(251, 146, 60, ${alpha.toFixed(2)})`;
+                    ctx.lineWidth = 1.6;
+                    ctx.beginPath();
+                    for (let s = 0; s <= 12; s++) {
+                        const frac = s / 12;
+                        const wy = hy + (1 - frac) * 14;
+                        const wx = hx + Math.sin(frac * Math.PI * 2 + timeSec * 4) * 3.5;
+                        if (s === 0) ctx.moveTo(wx, wy);
+                        else ctx.lineTo(wx, wy);
+                    }
+                    ctx.stroke();
+                });
+
+                // 4. STAGE 2 SUBPOLAR SEA-ICE CAP, ARCTIC COOLING & BRINE REJECTION (Nordic & Labrador Seas)
+                const iceLeft = subpolarSinkX - 48;
+                const iceRight = w - 12;
+                const iceGrad = ctx.createLinearGradient(iceLeft, airFloorY - 8, iceRight, airFloorY + 6);
+                iceGrad.addColorStop(0, '#bae6fd');
+                iceGrad.addColorStop(0.5, '#f0f9ff');
+                iceGrad.addColorStop(1, '#7dd3fc');
+                ctx.fillStyle = iceGrad;
+                ctx.beginPath();
+                ctx.moveTo(iceLeft, airFloorY + 2);
+                ctx.lineTo(iceLeft + 10, airFloorY - 7);
+                ctx.lineTo(iceRight, airFloorY - 9);
+                ctx.lineTo(iceRight, airFloorY + 4);
+                ctx.closePath();
+                ctx.fill();
+
+                // Cold Arctic Wind Arrows blowing onto Subpolar Surface
+                ctx.strokeStyle = 'rgba(125, 211, 252, 0.55)';
+                ctx.lineWidth = 1.4;
+                for (let cw = 0; cw < 3; cw++) {
+                    const wxStart = iceRight - 14 - cw * 26;
+                    const wyStart = 12 + cw * 6;
+                    ctx.beginPath();
+                    ctx.moveTo(wxStart, wyStart);
+                    ctx.lineTo(wxStart - 22, airFloorY - 10);
+                    ctx.lineTo(wxStart - 16, airFloorY - 11);
+                    ctx.moveTo(wxStart - 22, airFloorY - 10);
+                    ctx.lineTo(wxStart - 20, airFloorY - 16);
+                    ctx.stroke();
+                }
+
+                // Brine Rejection Salt Crystals sinking beneath Sea Ice
+                window.amocSaltCrystals.forEach(sc => {
+                    sc.t = (sc.t + sc.speed * dt * (0.65 + simStrength * 0.55)) % 1;
+                    const sx = subpolarSinkX + sc.offsetX * (1 - sc.t * 0.55);
+                    const sy = airFloorY + 6 + sc.t * (sinkBottomY - airFloorY - 24);
+                    const alpha = Math.sin(sc.t * Math.PI) * 0.85;
+                    ctx.fillStyle = `rgba(224, 242, 254, ${alpha.toFixed(2)})`;
+                    ctx.fillRect(sx - 1.5, sy - 1.5, 3, 3);
+                });
+
+                // Subpolar Deep Convection Plume Funnel Glow
+                const plumeGrad = ctx.createRadialGradient(
+                    subpolarSinkX, (airFloorY + sinkBottomY) * 0.52, 8,
+                    subpolarSinkX, (airFloorY + sinkBottomY) * 0.52, 78
+                );
+                plumeGrad.addColorStop(0, `rgba(56, 189, 248, ${0.26 + simStrength * 0.18})`);
+                plumeGrad.addColorStop(1, 'rgba(56, 189, 248, 0)');
+                ctx.fillStyle = plumeGrad;
+                ctx.beginPath();
+                ctx.ellipse(subpolarSinkX, (airFloorY + sinkBottomY) * 0.52, 46 + simStrength * 16, (sinkBottomY - airFloorY) * 0.48, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // 5. OCEAN FLOOR BATHYMETRY & CONTINENTAL SHELVES
+                ctx.fillStyle = '#070d19';
+                ctx.strokeStyle = 'rgba(52, 211, 153, 0.35)';
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.moveTo(0, h);
+                ctx.lineTo(0, airFloorY + 26);
+                ctx.quadraticCurveTo(southUpwellX * 0.7, abyssFloorY - 12, southUpwellX + 35, abyssFloorY);
+                // Mid-Atlantic Ridge bump in abyssal plain
+                ctx.lineTo(w * 0.46, abyssFloorY);
+                ctx.quadraticCurveTo(w * 0.51, abyssFloorY - 18, w * 0.56, abyssFloorY);
+                ctx.lineTo(subpolarSinkX + 20, abyssFloorY);
+                ctx.quadraticCurveTo(w * 0.94, abyssFloorY - 15, w, airFloorY + 22);
+                ctx.lineTo(w, h);
+                ctx.closePath();
+                ctx.fill();
+                ctx.stroke();
+
+                // 6. FULL 4-LEG THERMOHALINE CONVEYOR CIRCUIT (Multi-Streamline Ribbons + Parcels)
+                // Leg 1 (0.00 - 0.38): Northward Warm Salty Surface Flow (Tropics -> Gulf Stream -> Subpolar)
+                // Leg 2 (0.38 - 0.54): Subpolar Cooling, Densification & Deep Convection Sinking
+                // Leg 3 (0.54 - 0.86): Southward Cold Dense NADW Abyssal Return Flow along Ocean Floor
+                // Leg 4 (0.86 - 1.00): Southern Ocean Upwelling back to Surface Mixed Layer
+                function getConveyorPoint(t, laneOffset) {
+                    const surfY = airFloorY + 18 + laneOffset * 0.75;
+                    const deepY = sinkBottomY - 14 + laneOffset * 0.65;
+
+                    if (t < 0.38) {
+                        // Stage 1: Northward surface flow
+                        const u = t / 0.38;
+                        return cubicBezierPoint(
+                            { x: southUpwellX + 12, y: surfY + 4 },
+                            { x: tropicsX, y: surfY - 5 },
+                            { x: subpolarSinkX - 110, y: surfY + 2 },
+                            { x: subpolarSinkX - 14, y: surfY + 10 },
+                            u
+                        );
+                    } else if (t < 0.54) {
+                        // Stage 2: Cooling & Deep Sinking in Nordic / Labrador Seas
+                        const u = (t - 0.38) / 0.16;
+                        return cubicBezierPoint(
+                            { x: subpolarSinkX - 14, y: surfY + 10 },
+                            { x: subpolarSinkX + 18 - laneOffset * 0.5, y: surfY + (deepY - surfY) * 0.35 },
+                            { x: subpolarSinkX + 14 - laneOffset * 0.5, y: surfY + (deepY - surfY) * 0.75 },
+                            { x: subpolarSinkX - 18, y: deepY },
+                            u
+                        );
+                    } else if (t < 0.86) {
+                        // Stage 3: Southward Deep NADW Flow along Ocean Floor
+                        const u = (t - 0.54) / 0.32;
+                        const ridgeLift = Math.exp(-Math.pow((u - 0.52) / 0.14, 2)) * 12;
+                        return {
+                            x: subpolarSinkX - 18 - u * (subpolarSinkX - southUpwellX - 36),
+                            y: deepY - ridgeLift
+                        };
+                    } else {
+                        // Stage 4: Southern Ocean Upwelling to complete the circuit
+                        const u = (t - 0.86) / 0.14;
+                        return cubicBezierPoint(
+                            { x: southUpwellX + 18, y: deepY },
+                            { x: southUpwellX - 10 + laneOffset * 0.4, y: deepY - (deepY - surfY) * 0.35 },
+                            { x: southUpwellX - 6 + laneOffset * 0.4, y: surfY + (deepY - surfY) * 0.35 },
+                            { x: southUpwellX + 12, y: surfY + 4 },
+                            u
+                        );
+                    }
+                }
+
+                // Draw 3 Continuous Guide Streamlines for the Overturning Loop
+                [-10, 0, 10].forEach((lane, idx) => {
+                    ctx.beginPath();
+                    for (let s = 0; s <= 120; s++) {
+                        const pt = getConveyorPoint(s / 120, lane);
+                        if (s === 0) ctx.moveTo(pt.x, pt.y);
+                        else ctx.lineTo(pt.x, pt.y);
+                    }
+                    ctx.closePath();
+                    ctx.strokeStyle = idx === 1
+                        ? 'rgba(167, 243, 208, 0.24)'
+                        : 'rgba(125, 211, 252, 0.11)';
+                    ctx.lineWidth = idx === 1 ? 2.0 : 1.1;
+                    ctx.stroke();
+                });
+
+                // Animate Flowing Water Parcels with Smooth Thermal Color Transition
+                const flowRateMultiplier = 0.62 + simStrength * 0.78;
+                amocParticles.forEach(p => {
+                    p.t = (p.t + p.speed * flowRateMultiplier * dt) % 1;
+                    const pt = getConveyorPoint(p.t, p.lane);
+                    const wobble = Math.sin(timeSec * 3.0 + p.phase) * 1.4;
+
+                    // Color encodes Temperature & Density state across the 3 stages:
+                    // Warm Red/Orange (Northward Surface) -> Cyan (Cooling/Sinking) -> Deep Cobalt Blue (NADW) -> Teal (Upwelling)
+                    let color;
+                    if (p.t < 0.28) {
+                        color = '#fb7185'; // Warm Tropical / Gulf Stream Surface Water
+                    } else if (p.t < 0.38) {
+                        color = '#fb923c'; // Releasing Heat in North Atlantic Drift
+                    } else if (p.t < 0.54) {
+                        color = '#38bdf8'; // Cooling, Salty & Sinking in Subpolar Seas
+                    } else if (p.t < 0.86) {
+                        color = '#3b82f6'; // Cold, Dense Southward NADW along Ocean Floor
+                    } else {
+                        color = '#2dd4bf'; // Southern Ocean Upwelling & Re-warming
+                    }
+
+                    ctx.fillStyle = color;
+                    ctx.beginPath();
+                    ctx.arc(pt.x, pt.y + wobble, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Directional Vector Chevrons on Surface (Northward ->) & Abyssal Floor (<- Southward)
+                function drawChevron(cx, cy, dirRight, color) {
+                    const s = 5.5;
+                    ctx.strokeStyle = color;
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    if (dirRight) {
+                        ctx.moveTo(cx - s, cy - s);
+                        ctx.lineTo(cx + s, cy);
+                        ctx.lineTo(cx - s, cy + s);
+                    } else {
+                        ctx.moveTo(cx + s, cy - s);
+                        ctx.lineTo(cx - s, cy);
+                        ctx.lineTo(cx + s, cy + s);
+                    }
+                    ctx.stroke();
+                }
+                drawChevron(w * 0.36, airFloorY + 18, true, '#fda4af');
+                drawChevron(w * 0.60, airFloorY + 18, true, '#fdba74');
+                drawChevron(w * 0.60, sinkBottomY - 14, false, '#60a5fa');
+                drawChevron(w * 0.36, sinkBottomY - 14, false, '#60a5fa');
+
+                // 7. SCIENTIFIC HUD ANNOTATIONS FOR EACH STAGE
+                ctx.font = 'bold 10px "JetBrains Mono", monospace';
+
+                // Atmospheric Heat Release Label
+                ctx.fillStyle = '#fdba74';
+                ctx.fillText('HEAT RELEASE TO ATMOSPHERE (EVAPORATION)', w * 0.28, 16);
+
+                // Stage 1 Label
+                ctx.fillStyle = '#fda4af';
+                ctx.fillText('1. NORTHWARD SURFACE FLOW (GULF STREAM — WARM & SALTY)', w * 0.25, airFloorY + 38);
+
+                // Stage 2 Label
+                ctx.fillStyle = '#bae6fd';
+                ctx.fillText('2. NORDIC & LABRADOR SEAS', subpolarSinkX - 115, airFloorY - 14);
+                ctx.fillStyle = '#7dd3fc';
+                ctx.fillText('COOLING + BRINE REJECTION', subpolarSinkX - 125, airFloorY + 62);
+                ctx.fillText('DENSE WATER SINKING', subpolarSinkX - 108, airFloorY + 75);
+
+                // Stage 3 Label
+                ctx.fillStyle = '#93c5fd';
+                ctx.fillText('3. SOUTHWARD DEEP FLOW — NORTH ATLANTIC DEEP WATER (NADW)', w * 0.26, sinkBottomY - 26);
+
+                // Upwelling & Geography Labels
+                ctx.fillStyle = '#5eead4';
+                ctx.fillText('UPWELLING', southUpwellX - 24, (airFloorY + sinkBottomY) * 0.5);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText('SOUTHERN OCEAN / TROPICS', 10, h - 8);
+                ctx.fillText(`TRANSPORT: ${amocWeakened ? '12.4 Sv (WEAKENED)' : '18.5 Sv (BASELINE)'}`, w * 0.41, h - 8);
+                ctx.fillText('SUBPOLAR N. ATLANTIC (65°N)', w - 178, h - 8);
+
+                amocAnimId = requestAnimationFrame(renderAmoc);
+            }
+
+            amocAnimId = requestAnimationFrame(renderAmoc);
+        }
+        }
+
+        function toggleEnsoSimMode() {
+            ensoIsElNino = !ensoIsElNino;
+            const btn = document.getElementById('enso-mode-btn');
+            const status = document.getElementById('enso-status');
+            if (ensoIsElNino) {
+                btn.innerHTML = '<i class="fa-solid fa-sliders mr-1.5"></i>Phase: El Niño (+2.1°C)';
+                status.textContent = 'El Niño Advisory (Strong)';
+                showToast('ENSO Simulation: Strong El Niño (+2.1°C ONI)');
+            } else {
+                btn.innerHTML = '<i class="fa-solid fa-sliders mr-1.5"></i>Phase: La Niña (-1.6°C)';
+                status.textContent = 'La Niña Watch (Strong)';
+                showToast('ENSO Simulation: Strong La Niña (-1.6°C ONI)');
+            }
+        }
+
+        function startEnsoAnimation() {
+            const sized = resizeSimCanvas('enso-canvas');
+            if (!sized) return;
+            if (ensoOceanParticles.length === 0) {
+                for (let i = 0; i < 110; i++) {
+                    ensoOceanParticles.push({
+                        normX: Math.random(),
+                        depthFrac: Math.random(),
+                        speed: 0.05 + Math.random() * 0.08,
+                        size: 1.6 + Math.random() * 1.4,
+                        phase: Math.random() * Math.PI * 2
+                    });
+                }
+                for (let i = 0; i < 95; i++) {
+                    ensoAirParticles.push({
+                        t: Math.random(),
+                        loopId: i % 2, // 0 = western/central cell, 1 = eastern cell
+                        lane: ((i % 3) - 1) * 7,
+                        speed: 0.14 + Math.random() * 0.08,
+                        size: 1.6 + Math.random() * 1.1
+                    });
+                }
+            }
+            if (ensoAnimId) cancelAnimationFrame(ensoAnimId);
+
+            // 1.0 = El Niño, 0.0 = La Niña
+            let simElNino = ensoIsElNino ? 1.0 : 0.0;
+            let lastTime = performance.now();
+
+            function renderEnso(now) {
+                const tab = document.getElementById('tab-elnino');
+                if (!tab || !tab.classList.contains('active')) {
+                    ensoAnimId = null;
+                    return;
+                }
+                const dt = Math.min((now - lastTime) / 1000, 0.05);
+                lastTime = now;
+
+                const target = ensoIsElNino ? 1.0 : 0.0;
+                simElNino += (target - simElNino) * Math.min(1, dt * 2.2);
+
+                const info = resizeSimCanvas('enso-canvas');
+                if (!info) { ensoAnimId = requestAnimationFrame(renderEnso); return; }
+                const { ctx, w, h } = info;
+                const timeSec = now * 0.001;
+
+                const seaSurfaceY = h * 0.44;
+                const westShelfX = w * 0.11;
+                const eastShelfX = w * 0.89;
+                const basinW = eastShelfX - westShelfX;
+
+                // 1. TROPOSPHERE SKY BACKDROP (0 to seaSurfaceY)
+                const skyGrad = ctx.createLinearGradient(0, 0, 0, seaSurfaceY);
+                skyGrad.addColorStop(0, '#040916');
+                skyGrad.addColorStop(1, '#0b192e');
+                ctx.fillStyle = skyGrad;
+                ctx.fillRect(0, 0, w, seaSurfaceY);
+
+                // Tropopause Lid
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath(); ctx.moveTo(0, h * 0.09); ctx.lineTo(w, h * 0.09); ctx.stroke();
+                ctx.setLineDash([]);
+
+                // 2. EQUATORIAL PACIFIC OCEAN SUBSURFACE (seaSurfaceY to h)
+                const deepGrad = ctx.createLinearGradient(0, seaSurfaceY, 0, h);
+                deepGrad.addColorStop(0, '#061a33');
+                deepGrad.addColorStop(0.5, '#031024');
+                deepGrad.addColorStop(1, '#01060f');
+                ctx.fillStyle = deepGrad;
+                ctx.fillRect(0, seaSurfaceY, w, h - seaSurfaceY);
+
+                // Dynamic 20°C Thermocline Y Position
+                // In La Niña (simElNino=0): Deep in West (seaSurfaceY + 0.36*h), Shoals to surface in East (seaSurfaceY + 0.06*h)
+                // In El Niño (simElNino=1): Flattened across basin (seaSurfaceY + 0.23*h in West -> seaSurfaceY + 0.26*h in East)
+                function getThermoclineY(x) {
+                    const u = Math.max(0, Math.min(1, (x - westShelfX) / basinW));
+                    const westDepth = seaSurfaceY + h * (0.37 - simElNino * 0.14);
+                    const eastDepth = seaSurfaceY + h * (0.06 + simElNino * 0.21);
+                    const base = westDepth + (eastDepth - westDepth) * Math.pow(u, 0.85);
+                    // Eastward-propagating Equatorial Kelvin Waves along the thermocline
+                    const kwSpeed = 1.6 + simElNino * 1.8;
+                    const kwAmp = 4.5 + simElNino * 7.5;
+                    const kelvin = Math.sin(u * 14.0 - timeSec * kwSpeed) * kwAmp
+                                 + Math.cos(u * 26.0 - timeSec * kwSpeed * 1.5) * (kwAmp * 0.35);
+                    return base + kelvin;
+                }
+
+                // Warm Upper Ocean Pool Fill (Above Thermocline)
+                ctx.beginPath();
+                ctx.moveTo(westShelfX, seaSurfaceY);
+                ctx.lineTo(eastShelfX, seaSurfaceY);
+                for (let x = eastShelfX; x >= westShelfX; x -= 8) {
+                    ctx.lineTo(x, getThermoclineY(x));
+                }
+                ctx.closePath();
+
+                const poolGrad = ctx.createLinearGradient(westShelfX, 0, eastShelfX, 0);
+                if (simElNino > 0.5) {
+                    poolGrad.addColorStop(0, 'rgba(249, 115, 22, 0.42)');
+                    poolGrad.addColorStop(0.55, 'rgba(239, 68, 68, 0.55)');
+                    poolGrad.addColorStop(1, 'rgba(220, 38, 38, 0.62)');
+                } else {
+                    poolGrad.addColorStop(0, 'rgba(239, 68, 68, 0.58)');
+                    poolGrad.addColorStop(0.55, 'rgba(245, 158, 11, 0.32)');
+                    poolGrad.addColorStop(1, 'rgba(56, 189, 248, 0.18)');
+                }
+                ctx.fillStyle = poolGrad;
+                ctx.fill();
+
+                // Sea Surface Thermal Glow Strip
+                const sstGrad = ctx.createLinearGradient(westShelfX, 0, eastShelfX, 0);
+                sstGrad.addColorStop(0, simElNino > 0.5 ? '#fb923c' : '#ef4444');
+                sstGrad.addColorStop(0.5, simElNino > 0.5 ? '#ef4444' : '#f59e0b');
+                sstGrad.addColorStop(1, simElNino > 0.5 ? '#dc2626' : '#38bdf8');
+                ctx.strokeStyle = sstGrad;
+                ctx.lineWidth = 3.5;
+                ctx.beginPath();
+                for (let x = westShelfX; x <= eastShelfX; x += 8) {
+                    const waveY = seaSurfaceY + Math.sin(x * 0.04 + timeSec * 2.5) * 1.8;
+                    if (x === westShelfX) ctx.moveTo(x, waveY);
+                    else ctx.lineTo(x, waveY);
+                }
+                ctx.stroke();
+
+                // 20°C Isotherm Thermocline Boundary Line + Kelvin Wave Crest Glows
+                ctx.beginPath();
+                for (let x = westShelfX; x <= eastShelfX; x += 6) {
+                    const ty = getThermoclineY(x);
+                    if (x === westShelfX) ctx.moveTo(x, ty);
+                    else ctx.lineTo(x, ty);
+                }
+                ctx.strokeStyle = '#c084fc';
+                ctx.lineWidth = 2.4;
+                ctx.stroke();
+
+                if (simElNino > 0.25) {
+                    for (let k = 0; k < 3; k++) {
+                        const kx = westShelfX + (((timeSec * 65 + k * (basinW / 3)) % (basinW * 0.92)));
+                        const ky = getThermoclineY(kx);
+                        const kg = ctx.createRadialGradient(kx, ky, 1, kx, ky, 20);
+                        kg.addColorStop(0, `rgba(216, 180, 254, ${0.7 * simElNino})`);
+                        kg.addColorStop(1, 'rgba(216, 180, 254, 0)');
+                        ctx.fillStyle = kg;
+                        ctx.beginPath(); ctx.arc(kx, ky, 20, 0, Math.PI * 2); ctx.fill();
+                    }
+                }
+
+                // 3. CONTINENTAL MARGINS: MARITIME CONTINENT (LEFT) & SOUTH AMERICA / PERU (RIGHT)
+                ctx.fillStyle = '#0f172a';
+                ctx.strokeStyle = 'rgba(251, 146, 60, 0.4)';
+                ctx.lineWidth = 1.4;
+
+                // Indonesia / Maritime Continent (West)
+                ctx.beginPath();
+                ctx.moveTo(0, seaSurfaceY - 16);
+                ctx.lineTo(westShelfX * 0.72, seaSurfaceY - 12);
+                ctx.quadraticCurveTo(westShelfX * 1.15, seaSurfaceY + h * 0.14, westShelfX * 1.25, h);
+                ctx.lineTo(0, h);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                // South America / Andes Coast (East)
+                ctx.beginPath();
+                ctx.moveTo(w, seaSurfaceY - 34);
+                ctx.lineTo(eastShelfX + (w - eastShelfX) * 0.35, seaSurfaceY - 26);
+                ctx.lineTo(eastShelfX, seaSurfaceY - 6);
+                ctx.quadraticCurveTo(eastShelfX - w * 0.02, seaSurfaceY + h * 0.18, eastShelfX - w * 0.03, h);
+                ctx.lineTo(w, h);
+                ctx.closePath();
+                ctx.fill(); ctx.stroke();
+
+                // 4. DEEP CONVECTION THUNDERSTORM TOWER & WALKER CIRCULATION CELLS
+                // Convection center shifts from West Pacific (0.18) in La Niña to Central/East Pacific (0.64) in El Niño
+                const convX = westShelfX + basinW * (0.12 + simElNino * 0.54);
+                const cloudBaseY = seaSurfaceY - 26;
+                const cloudTopY = h * 0.11;
+
+                // Convective Rain Shafts below Storm Cloud
+                ctx.strokeStyle = 'rgba(96, 165, 250, 0.35)';
+                ctx.lineWidth = 1.2;
+                for (let r = -3; r <= 3; r++) {
+                    const rx = convX + r * 11 + ((timeSec * 15) % 8);
+                    const ryStart = cloudBaseY + 6;
+                    const ryEnd = seaSurfaceY - 4;
+                    ctx.beginPath();
+                    ctx.moveTo(rx, ryStart);
+                    ctx.lineTo(rx - 4, ryEnd);
+                    ctx.stroke();
+                }
+
+                // Cumulonimbus Anvil Cloud Complex
+                const cloudGrad = ctx.createRadialGradient(convX, (cloudBaseY + cloudTopY) * 0.5, 8, convX, (cloudBaseY + cloudTopY) * 0.5, 68);
+                cloudGrad.addColorStop(0, 'rgba(248, 250, 252, 0.85)');
+                cloudGrad.addColorStop(0.55, 'rgba(148, 163, 184, 0.45)');
+                cloudGrad.addColorStop(1, 'rgba(148, 163, 184, 0)');
+                ctx.fillStyle = cloudGrad;
+                ctx.beginPath();
+                ctx.ellipse(convX, cloudTopY + 12, 68, 16, 0, 0, Math.PI * 2);
+                ctx.ellipse(convX, (cloudBaseY + cloudTopY) * 0.52, 34, (cloudBaseY - cloudTopY) * 0.45, 0, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw Walker Circulation Loop Guides & Animated Air Parcels
+                function drawWalkerLoop(xLeft, xRight, clockwise) {
+                    const yTop = h * 0.14;
+                    const yBot = seaSurfaceY - 16;
+                    const rx = (xRight - xLeft) * 0.5;
+                    const ry = (yBot - yTop) * 0.5;
+                    const cx = (xLeft + xRight) * 0.5;
+                    const cy = (yTop + yBot) * 0.5;
+
+                    ctx.save();
+                    ctx.setLineDash([4, 6]);
+                    ctx.strokeStyle = 'rgba(125, 211, 252, 0.25)';
+                    ctx.lineWidth = 1.3;
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, Math.max(20, rx), Math.max(15, ry), 0, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.restore();
+                    return { cx, cy, rx: Math.max(20, rx), ry: Math.max(15, ry), dir: clockwise ? 1 : -1 };
+                }
+
+                const loops = [];
+                if (simElNino > 0.35) {
+                    // Split / Shifted Walker Cell (Rising over Central/East Pacific, sinking over Indonesia & Atlantic/Andes)
+                    loops.push(drawWalkerLoop(westShelfX + 10, convX - 10, false));
+                    loops.push(drawWalkerLoop(convX + 10, eastShelfX - 8, true));
+                } else {
+                    // Single Basin-Wide Walker Cell (Rising over Indonesia, strong easterly trades at surface)
+                    loops.push(drawWalkerLoop(convX + 10, eastShelfX - 10, true));
+                }
+
+                ensoAirParticles.forEach(p => {
+                    p.t = (p.t + p.speed * dt) % 1;
+                    const loop = loops[p.loopId % loops.length];
+                    const theta = p.t * Math.PI * 2 * loop.dir;
+                    const px = loop.cx + Math.cos(theta) * (loop.rx + p.lane * 0.6);
+                    const py = loop.cy + Math.sin(theta) * (loop.ry + p.lane * 0.4);
+                    const isSurfaceWind = Math.sin(theta) > 0.45;
+
+                    ctx.fillStyle = isSurfaceWind
+                        ? (simElNino > 0.5 ? '#fbbf24' : '#34d399')
+                        : '#7dd3fc';
+                    ctx.beginPath();
+                    ctx.arc(px, py, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // 5. ANIMATE SUBSURFACE OCEAN CURRENTS & COASTAL UPWELLING / DOWNWELLING
+                ensoOceanParticles.forEach(p => {
+                    // In El Niño: warm water surges eastward; in La Niña: trade winds push surface water westward + strong East upwelling
+                    const flowDir = simElNino > 0.5 ? 1 : -1;
+                    p.normX = (p.normX + flowDir * p.speed * dt + 1) % 1;
+                    const px = westShelfX + p.normX * basinW;
+                    const thermY = getThermoclineY(px);
+
+                    // Keep half the particles in the upper warm layer, half in the cold deep upwelling/return layer
+                    const inWarmLayer = p.depthFrac < 0.55;
+                    let py;
+                    if (inWarmLayer) {
+                        py = seaSurfaceY + 6 + (p.depthFrac / 0.55) * Math.max(8, thermY - seaSurfaceY - 10);
+                    } else {
+                        const deepFrac = (p.depthFrac - 0.55) / 0.45;
+                        py = thermY + 8 + deepFrac * Math.max(10, h - thermY - 16);
+                    }
+
+                    ctx.fillStyle = inWarmLayer
+                        ? (simElNino > 0.5 ? '#fb923c' : '#f87171')
+                        : '#38bdf8';
+                    ctx.beginPath();
+                    ctx.arc(px, py, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                });
+
+                // Eastern Boundary Upwelling vs Downwelling Arrows off Peru
+                const upX = eastShelfX - 24;
+                ctx.strokeStyle = simElNino > 0.5 ? '#fb923c' : '#38bdf8';
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                if (simElNino > 0.5) {
+                    // Suppressed upwelling / warm pile-up downwelling
+                    ctx.moveTo(upX, seaSurfaceY + 14);
+                    ctx.lineTo(upX, seaSurfaceY + 52);
+                    ctx.lineTo(upX - 5, seaSurfaceY + 45);
+                    ctx.moveTo(upX, seaSurfaceY + 52);
+                    ctx.lineTo(upX + 5, seaSurfaceY + 45);
+                } else {
+                    // Strong cold nutrient-rich coastal upwelling
+                    ctx.moveTo(upX, seaSurfaceY + 58);
+                    ctx.lineTo(upX, seaSurfaceY + 14);
+                    ctx.lineTo(upX - 5, seaSurfaceY + 21);
+                    ctx.moveTo(upX, seaSurfaceY + 14);
+                    ctx.lineTo(upX + 5, seaSurfaceY + 21);
+                }
+                ctx.stroke();
+
+                // 6. SCIENTIFIC HUD ANNOTATIONS
+                ctx.font = 'bold 10px "JetBrains Mono", monospace';
+                ctx.fillStyle = '#fdba74';
+                ctx.fillText(simElNino > 0.5 ? 'DEEP CONVECTION SHIFTED CENTRAL/EAST' : 'MARITIME CONTINENT CONVECTION', convX - 88, cloudTopY - 2);
+
+                ctx.fillStyle = simElNino > 0.5 ? '#fbbf24' : '#6ee7b7';
+                ctx.fillText(simElNino > 0.5 ? 'WESTERLY WIND BURSTS (WWBs)' : 'STRONG EASTERLY TRADE WINDS', w * 0.36, seaSurfaceY - 7);
+
+                ctx.fillStyle = '#d8b4fe';
+                const midThermY = getThermoclineY(westShelfX + basinW * 0.45);
+                ctx.fillText(simElNino > 0.5 ? 'FLATTENED 20°C THERMOCLINE + KELVIN WAVES' : 'STEEP 20°C THERMOCLINE TILT', westShelfX + basinW * 0.24, midThermY + 16);
+
+                ctx.fillStyle = simElNino > 0.5 ? '#fca5a5' : '#7dd3fc';
+                ctx.fillText(simElNino > 0.5 ? 'WARM POOL (+2.1°C ONI)' : 'COLD TONGUE UPWELLING', eastShelfX - 135, seaSurfaceY + 72);
+
+                ctx.fillStyle = '#94a3b8';
+                ctx.fillText('INDONESIA (120°E)', 10, h - 10);
+                ctx.fillText('PERU / S. AMERICA (80°W)', w - 155, h - 10);
+
+                ensoAnimId = requestAnimationFrame(renderEnso);
+            }
+            ensoAnimId = requestAnimationFrame(renderEnso);
+        }
+
+        // Cubic Bezier helper for smooth ocean current conveyor path
+<!-- ... existing code ... -->
